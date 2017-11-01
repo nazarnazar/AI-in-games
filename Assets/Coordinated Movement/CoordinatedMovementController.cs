@@ -5,7 +5,6 @@ using UnityEngine;
 public class CoordinatedMovementController : MonoBehaviour {
 
 	public GameObject characterPrefab;
-	public int numberOfSlots;
 	public float maxAcceleration;
 	public float timeToSetSlots;
 
@@ -13,9 +12,12 @@ public class CoordinatedMovementController : MonoBehaviour {
 	private Vector3 targetPosition;
 	private float radius;
 	private bool wait;
+	private int numberOfSlots;
 
 	void Start ()
 	{
+		numberOfSlots = Random.Range (2, 22);
+
 		chars = new GameObject[numberOfSlots];
 		targetPosition = new Vector3 (Random.Range (-5f, 5f), Random.Range (-3f, 3f), 0f);
 
@@ -25,7 +27,7 @@ public class CoordinatedMovementController : MonoBehaviour {
 		float size = chars [0].transform.localScale.x / ((float)numberOfSlots / 4f);
 		for (int i = 0; i < numberOfSlots; i++)
 			chars [i].transform.localScale = new Vector3 (size, size, size);
-		radius = chars[0].transform.localScale.x / Mathf.Sin (Mathf.PI / numberOfSlots);
+		radius = (chars[0].transform.localScale.x / 2f) / Mathf.Sin (Mathf.PI / numberOfSlots);
 
 		timeToSetSlots /= ((float)numberOfSlots / 4f);
 
