@@ -12,6 +12,7 @@ public class AstarController : MonoBehaviour
     private int startIndex;
     private int finishIndex;
     private float[] G;
+    private float distBetweenTwoNodes;
 
     public void BeginAStar()
     {
@@ -24,6 +25,8 @@ public class AstarController : MonoBehaviour
         width = nodeSpawner.GetWidth();
         height = nodeSpawner.GetHeight();
         Debug.Log(width);
+
+        distBetweenTwoNodes = Vector3.Distance(nodes[0].transform.position, nodes[1].transform.position);
 
         startIndex = GetStartNode(nodes);
         finishIndex = GetFinishNode(nodes);
@@ -125,6 +128,7 @@ public class AstarController : MonoBehaviour
             {
                 minValue = G[open[i]] + FuncH(open[i], finishIndex);
                 minIndex = open[i];
+                Debug.Log("MinF " + (minIndex / width + 1) + " " + (minIndex % width + 1) + " value: " + minValue);
             }
         }
         return minIndex;
@@ -132,7 +136,7 @@ public class AstarController : MonoBehaviour
 
     float FuncH(int a, int b)
     {
-        return Vector3.Distance(nodes[a].transform.position, nodes[b].transform.position);
+        return Vector3.Distance(nodes[a].transform.position, nodes[b].transform.position) / distBetweenTwoNodes;
     }
 
     int GetStartNode(List<GameObject> nodes)
