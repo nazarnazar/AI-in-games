@@ -13,8 +13,6 @@ public class SupportSpotsController : MonoBehaviour
     private Region _spotsRegion;
     private SupportSpot[] _supportSpots;
     private SupportSpot _bestSupportSpot;
-    private Player[] _homePlayers;
-    private Player[] _opponentPlayers;
 
 	private void Start()
     {
@@ -34,11 +32,13 @@ public class SupportSpotsController : MonoBehaviour
                 _supportSpots[spotIndex].Position = new Vector2(_spotsRegion.TopLeft.x + columnStep * j,
                     _spotsRegion.TopLeft.y - rowStep * i);
                 _supportSpots[spotIndex].Score = 1.0f;
+
+                if (!MatchData.Instance().IsDebugMode)
+                {
+                    tempSpot.SetActive(false);
+                }
             }
         }
-
-        _homePlayers = _team.GetPlayers();
-        _opponentPlayers = _team.GetOpponentTeam().GetPlayers();
 	}
 
     public SupportSpot GetBestSupportingSpot(Player controllingPlayer, List<Player> supportingPlayers)
@@ -54,7 +54,7 @@ public class SupportSpotsController : MonoBehaviour
             tempSpot.Score = 1.0f;
             // Debug.LogFormat("tempSpot{0}: {1}", i, tempSpot.Position);
 
-            if (_team.IsPassSafe(controllingPlayer.GetPosition(), tempSpot.Position, MatchData.Instance().MaxPassForce))
+            if (_team.IsPassSafe(controllingPlayer.GetPosition(), tempSpot.Position))
             {
                 tempSpot.Score += MatchData.Instance().PassToSpotIsSafeValue;
             }

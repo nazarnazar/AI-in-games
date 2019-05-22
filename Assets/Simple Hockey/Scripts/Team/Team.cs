@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.UI;
 
 public class Team : MonoBehaviour
 {
@@ -11,12 +12,22 @@ public class Team : MonoBehaviour
     [SerializeField] private Rink _rink;
     [SerializeField] private Goal _homeGoal;
     [SerializeField] private SupportSpotsController _supportSpotsController;
+    [SerializeField] private HumanControlls _humanControlls;
+    [SerializeField] private Animator _configsPanelAnimator;
+
+    public bool AIControll = true;
 
     private Player _receivingPlayer;
     private Player _closestToBallPlayer;
     private Player _controllingPlayer;
     private List<Player> _supportingPlayers;
     private HockeyStateMachine _stateMachine;
+    private bool _configsPanelIsOpen;
+
+    private void Start()
+    {
+        _configsPanelIsOpen = false;
+    }
 
     public void InitTeam()
     {
@@ -36,8 +47,17 @@ public class Team : MonoBehaviour
         index = _goalkeeper.GetAttackRegionIndex();
         _goalkeeper.AttackRegion = _rink.GetRinkRegions()[index];
         _goalkeeper.Team = this;
-        _stateMachine = new HockeyStateMachine(this, KickOff.Instance());
 	}
+
+    public void StartPlaying()
+    {
+        for (int i = 0; i < _homeFieldPlayers.Length; i++)
+        {
+            _homeFieldPlayers[i].StartPlaying();
+        }
+        _goalkeeper.StartPlaying();
+        _stateMachine = new HockeyStateMachine(this, KickOff.Instance());
+    }
 	
     public void OpponentsScored(System.Action scored)
     {
@@ -55,6 +75,16 @@ public class Team : MonoBehaviour
 
         _closestToBallPlayer = CalculateClosestToBallPlayer();
 	}
+
+    public void UpdatePlayerHomeRegion(Player player)
+    {
+        player.HomeRegion = _rink.GetRinkRegions()[player.GetHomeRegionIndex()];
+    }
+
+    public void UpdatePlayerAttackRegion(Player player)
+    {
+        player.AttackRegion = _rink.GetRinkRegions()[player.GetAttackRegionIndex()];
+    }
 
     public Player[] GetPlayers()
     {
@@ -134,7 +164,8 @@ public class Team : MonoBehaviour
         {
             for (int i = 0; i < _homeFieldPlayers.Length; i++)
             {
-                if (_homeFieldPlayers[i] != p && _homeFieldPlayers[i].IsAheadOfAttacker())
+                if (_homeFieldPlayers[i] != p && _homeFieldPlayers[i].IsAheadOfAttacker() &&
+                    IsPassSafe(p.GetPosition(), _homeFieldPlayers[i].GetPosition()))
                 {
                     return _homeFieldPlayers[i];
                 }
@@ -147,7 +178,8 @@ public class Team : MonoBehaviour
             {
                 foreach (var supportPlayer in _supportingPlayers)
                 {
-                    if (_homeFieldPlayers[i] != p && _homeFieldPlayers[i] == supportPlayer)
+                    if (_homeFieldPlayers[i] != p && _homeFieldPlayers[i] == supportPlayer &&
+                        IsPassSafe(p.GetPosition(), _homeFieldPlayers[i].GetPosition()))
                     {
                         return _homeFieldPlayers[i];
                     }
@@ -155,21 +187,48 @@ public class Team : MonoBehaviour
             }
         }
 
-        FieldPlayer randPlayer = _homeFieldPlayers[Random.Range(0, _homeFieldPlayers.Length)];
-        while (randPlayer == p)
+        for (int i = 0; i < _homeFieldPlayers.Length; i++)
         {
-            randPlayer = _homeFieldPlayers[Random.Range(0, _homeFieldPlayers.Length)];
+            if (_homeFieldPlayers[i] != p &&
+                IsPassSafe(p.GetPosition(), _homeFieldPlayers[i].GetPosition()))
+            {
+                return _homeFieldPlayers[i];
+            }
         }
-        return randPlayer;
+
+        return null;
     }
 
-    public void GoBackHome()
+    public FieldPlayer GetClosestPlayerToDirection(Player p, Vector2 direction)
+    {
+        float minAngle = 180.0f;
+        FieldPlayer minPlayer = null;
+        for (int i = 0; i < _homeFieldPlayers.Length; i++)
+        {
+            if (_homeFieldPlayers[i] != p)
+            {
+                Vector2 toAnotherPlayer = _homeFieldPlayers[i].GetPosition() - p.GetPosition();
+                toAnotherPlayer.Normalize();
+                if (minAngle > Vector2.Angle(direction, toAnotherPlayer))
+                {
+                    minAngle = Vector2.Angle(direction, toAnotherPlayer);
+                    minPlayer = _homeFieldPlayers[i];
+                }
+            }
+        }
+        return minPlayer;
+    }
+
+    public void GoBackHome(bool kickOff)
     {
         for (int i = 0; i < _homeFieldPlayers.Length; i++)
         {
             _homeFieldPlayers[i].ChangeState(ReturnHome.Instance());
         }
-        _goalkeeper.ChangeState(GoalkeeperReturnHome.Instance());
+        if (kickOff)
+        {
+            _goalkeeper.ChangeState(GoalkeeperReturnHome.Instance());
+        }
     }
 
     public void GoToAttack()
@@ -196,10 +255,6 @@ public class Team : MonoBehaviour
                 return false;
             }
         }
-        if (!_goalkeeper.IsAtTarget())
-        {
-            return false;
-        }
         return true;
     }
 
@@ -212,7 +267,7 @@ public class Team : MonoBehaviour
     {
         for (int i = 0; i < _homeFieldPlayers.Length; i++)
         {
-            if (_homeFieldPlayers[i] == GetBall().GetLastPlayerKickedPuck() /*&& _controllingPlayer != null*/)
+            if (_homeFieldPlayers[i] == GetPuck().GetLastPlayerKickedPuck())
             {
                 return true;
             }
@@ -225,7 +280,7 @@ public class Team : MonoBehaviour
         return _supportSpotsController.GetBestSupportingSpot(_controllingPlayer, _supportingPlayers);
     }
 
-    public Puck GetBall()
+    public Puck GetPuck()
     {
         return _rink.GetPuck();
     }
@@ -273,22 +328,21 @@ public class Team : MonoBehaviour
         return Vector2.Distance(playerPos, GetOpponentTeam().GetHomeGoal().GetPosition()) < _rink.GetRinkLength() / 4.0f;
     }
 
-    public bool CanPass(Player player, Player receiver, float power, float minPassDist)
+    public bool IsPassSafe(Vector2 playerWithBallPos, Vector2 targetPos)
     {
-        return true;
-    }
-
-    public bool IsPassSafe(Vector2 playerWithBallPos, Vector2 targetPos, float passForce)   //TODO: Involve pass force
-    {
+        const int trajectoryPrecision = 5;
         Vector2[] opponentsPos = _opponentTeam.GetPlayersPos();
+        Vector2 trajectory = targetPos - playerWithBallPos;
         for (int i = 0; i < opponentsPos.Length; i++)
         {
-            float trajectoryPointLerp = Vector2.Distance(playerWithBallPos, targetPos) /
-                                        Vector2.Distance(playerWithBallPos, opponentsPos[i]);
-            Vector2 trajectoryPoint = Vector2.Lerp(playerWithBallPos, targetPos, trajectoryPointLerp);
-            if (Vector2.Distance(trajectoryPoint, opponentsPos[i]) < MatchData.Instance().PassIntersectionRadius)
+            for (int j = 0; j < trajectoryPrecision; j++)
             {
-                return false;
+                Vector2 point = Vector2.Lerp(playerWithBallPos, targetPos, (float)j / (float)trajectoryPrecision);
+                if (Vector2.Distance(playerWithBallPos, point) > Vector2.Distance(opponentsPos[i], point) &&
+                    Vector2.Distance(targetPos, point) > Vector2.Distance(opponentsPos[i], point))
+                {
+                    return false;
+                }
             }
         }
         return true;
@@ -305,11 +359,11 @@ public class Team : MonoBehaviour
 
     private Player CalculateClosestToBallPlayer()
     {
-        float currClosestDist = Vector2.Distance(_homeFieldPlayers[0].GetPosition(), GetBall().GetPosition());
+        float currClosestDist = Vector2.Distance(_homeFieldPlayers[0].GetPosition(), GetPuck().GetPosition());
         Player currClosestPlayer = _homeFieldPlayers[0];
         for (int i = 1; i < _homeFieldPlayers.Length; i++)
         {
-            float tempClosestDist = Vector2.Distance(_homeFieldPlayers[i].GetPosition(), GetBall().GetPosition());
+            float tempClosestDist = Vector2.Distance(_homeFieldPlayers[i].GetPosition(), GetPuck().GetPosition());
             if (tempClosestDist < currClosestDist)
             {
                 currClosestDist = tempClosestDist;
@@ -317,5 +371,39 @@ public class Team : MonoBehaviour
             }
         }
         return currClosestPlayer;
+    }
+
+    public void UseAIControll(Image buttonImage)
+    {
+        AIControll = !AIControll;
+        if (AIControll)
+        {
+            buttonImage.color = Color.white;
+        }
+        else
+        {
+            buttonImage.color = Color.gray;
+        }
+    }
+
+    public HumanControlls GetHumanControlls()
+    {
+        return _humanControlls;
+    }
+
+    public void OpenCloseConfigs(RectTransform arrow)
+    {
+        _configsPanelIsOpen = !_configsPanelIsOpen;
+        _configsPanelAnimator.SetBool("IsOpen", _configsPanelIsOpen);
+        if (_configsPanelIsOpen)
+        {
+            arrow.localEulerAngles = new Vector3(0.0f, 0.0f, -180.0f);
+            _rink.ShowRegions();
+        }
+        else
+        {
+            arrow.localEulerAngles = Vector3.zero;
+            _rink.HideRegions();
+        }
     }
 }

@@ -131,7 +131,7 @@ public class SteeringBehaviors
         Vector2 aheadPosOne = agentOne.GetAgentPosition() + agentOne.GetAgentVelocity() * timeToReachMiddlePoint;
         Vector2 aheadPosTwo = agentTwo.GetAgentPosition() + agentTwo.GetAgentVelocity() * timeToReachMiddlePoint;
         middlePoint = (aheadPosOne + aheadPosTwo) / 2.0f;
-        return Arrive(middlePoint, Deceleration.Normal);
+        return Arrive(new Vector2(_movingAgent.GetAgentPosition().x, middlePoint.y), Deceleration.Normal);
     }
 
     public Vector2 GetHidingPosition(MovingAgent pursuer, GameObject obstacle)

@@ -23,9 +23,10 @@ public class ReturnHome : IFieldPlayerState
 
     public void Execute(FieldPlayer player)
     {
-        if (Vector2.Distance(player.GetPosition(), player.HomeRegion.Center) < MatchData.Instance().E)
+        if (player.IsAtTarget())
         {
             player.ChangeState(Wait.Instance());
+            return;
         }
 
         if (player.Team.GetRink().IsGameOn())
@@ -33,7 +34,6 @@ public class ReturnHome : IFieldPlayerState
             if (player.IsClosestToBall() && player.Team.GetReceivingPlayer() == null && !player.Team.GetRink().GoalKeeperHasBall())
             {
                 player.ChangeState(ChasePuck.Instance());
-                return;
             }
         }
     }

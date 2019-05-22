@@ -15,6 +15,8 @@ public class Rink : MonoBehaviour
 
     private Region _playground;
     private Region[] _pitchRegions;
+    private GameObject[] _regionsTexts;
+    private int _showHideRegionsCounter;
 
     public void InitRink()
     {
@@ -27,7 +29,9 @@ public class Rink : MonoBehaviour
         float oneRegionHeight = _playground.GetHeight() / _pitchRegionsRowsNumber;
         float oneRegionWidth = _playground.GetWidth() / _pitchRegionsColumnsNumber;
         _pitchRegions = new Region[_pitchRegionsRowsNumber * _pitchRegionsColumnsNumber];
+        _regionsTexts = new GameObject[_pitchRegionsRowsNumber * _pitchRegionsColumnsNumber];
         int regionIndex;
+        int k = 0;
         for (int i = 0; i < _pitchRegionsRowsNumber; i++)
         {
             for (int j = 0; j < _pitchRegionsColumnsNumber; j++)
@@ -40,6 +44,29 @@ public class Rink : MonoBehaviour
                 GameObject regionText = Instantiate(_pitchRegionIndexPref, _pitchRegionsIndexesHolder);
                 regionText.transform.position = _pitchRegions[regionIndex].Center;
                 regionText.GetComponent<TextMeshPro>().text = regionIndex.ToString();
+                _regionsTexts[k++] = regionText;
+                regionText.SetActive(false);
+            }
+        }
+    }
+
+    public void ShowRegions()
+    {
+        _showHideRegionsCounter++;
+        for (int i = 0; i < _regionsTexts.Length; i++)
+        {
+            _regionsTexts[i].SetActive(true);
+        }
+    }
+
+    public void HideRegions()
+    {
+        _showHideRegionsCounter--;
+        if (_showHideRegionsCounter == 0)
+        {
+            for (int i = 0; i < _regionsTexts.Length; i++)
+            {
+                _regionsTexts[i].SetActive(false);
             }
         }
     }

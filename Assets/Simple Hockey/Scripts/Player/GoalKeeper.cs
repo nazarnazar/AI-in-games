@@ -1,11 +1,21 @@
-﻿
+﻿using UnityEngine;
+
 public class GoalKeeper : Player
 {
+    [SerializeField] private MovingAgent _goalPositioner;
+
     private GoalkeeperStateMachine _goalkeeperStateMachine;
+
+    private const float _goalkeeperForceKoef = 10.0f;
 
     public void InitGoalkeeper()
     {
-        base.ConnectMovingAgent();
+        base.InitPlayer();
+        MovingAgent.MaxForce *= _goalkeeperForceKoef;
+    }
+
+    public void StartPlaying()
+    {
         _goalkeeperStateMachine = new GoalkeeperStateMachine(this, null);
     }
 
@@ -27,5 +37,10 @@ public class GoalKeeper : Player
     public void SendMessage(MessageType messageType)
     {
         _goalkeeperStateMachine.NewMessage(this, messageType);
+    }
+
+    public MovingAgent GetGoalPositioner()
+    {
+        return _goalPositioner;
     }
 }

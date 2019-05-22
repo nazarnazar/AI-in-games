@@ -22,9 +22,15 @@ public class Dribble : IFieldPlayerState
 
     public void Execute(FieldPlayer player)
     {
-        Vector2 facing = player.Team.GetHomeGoal().Facing();
+        Vector2 facing = player.Team.AIControll ? AIDribbleDirection(player) : HumanDribbleDirection(player);
         float noise = MatchData.Instance().KickNoiseWhileDribble;
         float force = MatchData.Instance().KickForceWhileDribble + Random.Range(-noise, noise);
+
+        if (Vector2.Dot(facing, player.GetPuck().GetPuckMovingAgent().GetAgentVelocity()) < 0.0f)
+        {
+            player.GetPuck().Trap();
+        }
+
         player.GetPuck().Kick(facing, force, player);
 
         player.ChangeState(ChasePuck.Instance());
@@ -35,5 +41,15 @@ public class Dribble : IFieldPlayerState
         player.ChangeColor(Color.white);
 
         player.Team.UnsetControllingPlayer(player);
+    }
+
+    private Vector2 AIDribbleDirection(FieldPlayer player)
+    {
+        return player.Team.GetHomeGoal().Facing();
+    }
+
+    private Vector2 HumanDribbleDirection(FieldPlayer player)
+    {
+        return player.Team.GetHumanControlls().GetDirection();
     }
 }

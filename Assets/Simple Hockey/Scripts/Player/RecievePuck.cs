@@ -36,7 +36,7 @@ public class RecievePuck : IFieldPlayerState
 
     public void Execute(FieldPlayer player)
     {
-        if (!player.Team.IsPassSafe(player.GetPuck().GetPosition(), player.GetPosition(), MatchData.Instance().MaxPassForce) ||
+        if (!player.Team.IsPassSafe(player.GetPuck().GetPosition(), player.GetPosition()) ||
             !player.Team.InControl())
         {
             player.ChangeState(ChasePuck.Instance());

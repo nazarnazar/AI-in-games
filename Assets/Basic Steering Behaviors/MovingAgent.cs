@@ -61,10 +61,12 @@ public class MovingAgent : MonoBehaviour
         }
         if (!HasSteeringType(SteeringType.ObstacleAvoidance))   // TODO: Fix this approach
         {
+            /*
             if (gameObject.name != "Puck")
             {
                 _circleCollider.enabled = false;
             }
+            */
         }
         if (GroupLeader)
         {
@@ -80,6 +82,7 @@ public class MovingAgent : MonoBehaviour
             _target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
         */
+
         for (int i = 0; i < _currentSteeringTypes.Length; i++)
         {
             switch (_currentSteeringTypes[i])
@@ -235,6 +238,8 @@ public class MovingAgent : MonoBehaviour
             sTypes[i] = _currentSteeringTypes[j];
         }
         _currentSteeringTypes = sTypes;
+
+        _currentSteeringTypes = new SteeringType[] { };  // TODO: Fix this bug
     }
 
     public bool HasSteeringType(SteeringType st)
@@ -261,7 +266,6 @@ public class MovingAgent : MonoBehaviour
 
     public bool TargetReached()
     {
-        //Debug.Log("TargetReached: " + ((_target - GetAgentPosition()).magnitude < MinTargetDistance));
         return ((_target - GetAgentPosition()).magnitude < MinTargetDistance);
     }
 
@@ -275,9 +279,15 @@ public class MovingAgent : MonoBehaviour
         return _rigidBody.position;
     }
 
-    public void SetAgentCurrentVelocity(Vector2 vel)
+    public void SetAgentVelocity(Vector2 vel)
     {
         _rigidBody.velocity = vel;
+    }
+
+    public void Stop()
+    {
+        _rigidBody.angularVelocity = 0.0f;
+        _rigidBody.velocity = Vector2.zero;
     }
 
     public Vector2 GetAgentVelocity()
@@ -371,12 +381,12 @@ public class MovingAgent : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         _currentObstacle = other.gameObject;
-        AddSteeringType(SteeringType.ObstacleAvoidance);
+        // AddSteeringType(SteeringType.ObstacleAvoidance); // TODO: Fix that
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
         _currentObstacle = null;
-        RemoveSteeringType(SteeringType.ObstacleAvoidance);
+        // RemoveSteeringType(SteeringType.ObstacleAvoidance);
     }
 }

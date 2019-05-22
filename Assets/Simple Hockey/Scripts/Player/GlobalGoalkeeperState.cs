@@ -36,11 +36,6 @@ public class GlobalGoalkeeperState : IGoalkeeperState
 
     public bool NewMessage(GoalKeeper player, MessageType messageType)
     {
-        switch (messageType)
-        {
-            
-        }
-
         return false;
     }
 }

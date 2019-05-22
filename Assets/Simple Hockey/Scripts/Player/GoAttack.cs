@@ -23,9 +23,10 @@ public class GoAttack : IFieldPlayerState
 
     public void Execute(FieldPlayer player)
     {
-        if (Vector2.Distance(player.GetPosition(), player.AttackRegion.Center) < MatchData.Instance().E)
+        if (player.IsAtTarget())
         {
             player.SendMessage(MessageType.SupportAttacker);
+            return;
         }
 
         if (player.Team.GetRink().IsGameOn())

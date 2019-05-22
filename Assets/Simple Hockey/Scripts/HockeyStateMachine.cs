@@ -7,6 +7,10 @@ public class HockeyStateMachine
     public HockeyStateMachine(Team team, IHockeyState initialState)
     {
         _team = team;
+        if (_currentState != null)
+        {
+            _currentState.Exit(_team);
+        }
         _currentState = initialState;
         _currentState.Enter(_team);
     }

@@ -28,12 +28,13 @@ public class SupportAttacker : IFieldPlayerState
         if (player.Team.CanShoot(player.GetPosition(), MatchData.Instance().MaxShootForce))
         {
             player.SendMessage(MessageType.PassToMe);
+            return;
         }
 
         if (player.IsAtTarget())
         {
             player.TrackPuck();
-            player.SetCurrentVelocity(Vector2.zero);
+            player.MovingAgent.Stop();
             if (!player.IsThreatened())
             {
                 player.SendMessage(MessageType.PassToMe);

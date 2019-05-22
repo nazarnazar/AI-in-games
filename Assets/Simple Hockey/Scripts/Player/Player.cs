@@ -20,14 +20,15 @@ public class Player : MonoBehaviour
 
     private Coroutine _movingRoutine;
 
-    public void Start()
+    public void InitPlayer()
     {
         _number.text = Random.Range(1, 100).ToString();
+        MovingAgent = GetComponent<MovingAgent>();
     }
 
-    public void ConnectMovingAgent()
+    public int GetPlayerNumber()
     {
-        MovingAgent = GetComponent<MovingAgent>();
+        return int.Parse(_number.text);
     }
 
     public int GetHomeRegionIndex()
@@ -35,9 +36,21 @@ public class Player : MonoBehaviour
         return _homeRegionIndex;
     }
 
+    protected void SetHomeRegionIndex(int newHomeRegionIndex)
+    {
+        _homeRegionIndex = newHomeRegionIndex;
+        Team.UpdatePlayerHomeRegion(this);
+    }
+
     public int GetAttackRegionIndex()
     {
         return _attackRegionIndex;
+    }
+
+    protected void SetAttackRegionIndex(int newAttackRegionIndex)
+    {
+        _attackRegionIndex = newAttackRegionIndex;
+        Team.UpdatePlayerAttackRegion(this);
     }
 
     public bool IsAtTarget()
@@ -55,7 +68,7 @@ public class Player : MonoBehaviour
 
     public Puck GetPuck()
     {
-        return Team.GetBall();
+        return Team.GetPuck();
     }
 
     public Vector2 GetPosition()
@@ -78,11 +91,6 @@ public class Player : MonoBehaviour
         return this == Team.GetClosestToBallPlayer();
     }
 
-    public void SetCurrentVelocity(Vector2 vel)
-    {
-        MovingAgent.SetAgentCurrentVelocity(vel);
-    }
-
     public Vector2 GetCurrentVelocity()
     {
         return MovingAgent.GetAgentVelocity();
@@ -90,7 +98,7 @@ public class Player : MonoBehaviour
 
     public void TrackPuck()
     {
-        Vector2 direction = Team.GetBall().GetPosition() - MovingAgent.GetAgentPosition();
+        Vector2 direction = Team.GetPuck().GetPosition() - MovingAgent.GetAgentPosition();
         float lookAngle = Mathf.Atan2(direction.y, direction.x);
         MovingAgent.SetAgentRotation(lookAngle * Mathf.Rad2Deg);
     }

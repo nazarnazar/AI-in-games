@@ -69,6 +69,11 @@ public class GlobalPlayerState : IFieldPlayerState
 
             case MessageType.PassToMe:
 
+                if (!player.Team.AIControll)
+                {
+                    return true;
+                }
+
                 FieldPlayer controllingPlayer = (FieldPlayer)player.Team.GetControllingPlayer();
                 if (controllingPlayer == null)
                 {

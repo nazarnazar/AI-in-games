@@ -9,8 +9,12 @@ public class FieldPlayerStateMachine
     {
         _player = player;
         _globalState = GlobalPlayerState.Instance();
-        _currentState = initialState;
         _globalState.Enter(_player);
+        if (_currentState != null)
+        {
+            _currentState.Exit(_player);
+        }
+        _currentState = initialState;
         if (_currentState != null)
         {
             _currentState.Enter(_player);

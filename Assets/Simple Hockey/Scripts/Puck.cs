@@ -4,37 +4,40 @@ public class Puck : MonoBehaviour
 {
     private Player _lastPlayerKickedPuck;
     private Rigidbody2D _rb;
-    private float _kickMaxForce;
+    private float _debugKickForce;
     private MovingAgent _movingAgent;
 
 	private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
         _movingAgent = GetComponent<MovingAgent>();
-        _kickMaxForce = MatchData.Instance().KickMaxForce;
+        _debugKickForce = MatchData.Instance().DebugKickForce;
     }
 	
 	private void Update()
     {
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (MatchData.Instance().IsDebugMode)
         {
-            Kick(new Vector2(0.0f, 1.0f), _kickMaxForce, null);
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            Kick(new Vector2(1.0f, 0.0f), _kickMaxForce, null);
-        }
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            Kick(new Vector2(-1.0f, 0.0f), _kickMaxForce, null);
-        }
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            Kick(new Vector2(0.0f, -1.0f), _kickMaxForce, null);
-        }
-        if (Input.GetKey(KeyCode.Space))
-        {
-            Trap();
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+                Kick(new Vector2(0.0f, 1.0f), _debugKickForce, null);
+            }
+            if (Input.GetKey(KeyCode.RightArrow))
+            {
+                Kick(new Vector2(1.0f, 0.0f), _debugKickForce, null);
+            }
+            if (Input.GetKey(KeyCode.LeftArrow))
+            {
+                Kick(new Vector2(-1.0f, 0.0f), _debugKickForce, null);
+            }
+            if (Input.GetKey(KeyCode.DownArrow))
+            {
+                Kick(new Vector2(0.0f, -1.0f), _debugKickForce, null);
+            }
+            if (Input.GetKey(KeyCode.Space))
+            {
+                Trap();
+            }
         }
 	}
 

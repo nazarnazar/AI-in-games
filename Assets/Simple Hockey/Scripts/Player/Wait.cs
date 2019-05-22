@@ -24,15 +24,23 @@ public class Wait : IFieldPlayerState
             Vector2.Distance(player.GetPosition(), player.HomeRegion.Center) > MatchData.Instance().E)
         {
             player.ChangeState(ReturnHome.Instance());
+            return;
         }
         else if (player.Team.GetCurrentState() == Attack.Instance() &&
             Vector2.Distance(player.GetPosition(), player.AttackRegion.Center) > MatchData.Instance().E)
         {
             player.ChangeState(GoAttack.Instance());
+            return;
+        }
+        else if (player.Team.GetCurrentState() == KickOff.Instance() &&
+            Vector2.Distance(player.GetPosition(), player.HomeRegion.Center) > MatchData.Instance().E)
+        {
+            player.ChangeState(ReturnHome.Instance());
+            return;
         }
         else
         {
-            player.SetCurrentVelocity(Vector2.zero);
+            player.MovingAgent.Stop();
             player.TrackPuck();
         }
 

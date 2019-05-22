@@ -17,7 +17,7 @@ public class Defence : IHockeyState
     {
         if (!team.AreEverybodyHome())
         {
-            team.GoBackHome();
+            team.GoBackHome(false);
         }
     }
 

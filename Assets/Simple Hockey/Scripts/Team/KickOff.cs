@@ -20,7 +20,7 @@ public class KickOff : IHockeyState
         team.SetControllingPlayer(null);
         team.NullSupportingPlayers();
 
-        team.GoBackHome();
+        team.GoBackHome(true);
     }
 
     public void Execute(Team team)

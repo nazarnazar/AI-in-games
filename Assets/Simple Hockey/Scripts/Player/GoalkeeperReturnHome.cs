@@ -23,7 +23,7 @@ public class GoalkeeperReturnHome : IGoalkeeperState
 
     public void Execute(GoalKeeper player)
     {
-        if (Vector2.Distance(player.GetPosition(), player.HomeRegion.Center) < MatchData.Instance().E)
+        if (player.IsAtTarget())
         {
             player.ChangeState(GoalkeeperGuardGoal.Instance());
         }
