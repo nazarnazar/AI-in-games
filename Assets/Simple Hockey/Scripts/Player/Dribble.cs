@@ -26,7 +26,7 @@ public class Dribble : IFieldPlayerState
         float noise = MatchData.Instance().KickNoiseWhileDribble;
         float force = MatchData.Instance().KickForceWhileDribble + Random.Range(-noise, noise);
 
-        if (Vector2.Dot(facing, player.GetPuck().GetPuckMovingAgent().GetAgentVelocity()) < 0.0f)
+        if (player.GetPuck().CanKick(player) && Vector2.Dot(facing, player.GetPuck().GetPuckMovingAgent().GetAgentVelocity()) < 0.0f)
         {
             player.GetPuck().Trap();
         }
@@ -45,7 +45,14 @@ public class Dribble : IFieldPlayerState
 
     private Vector2 AIDribbleDirection(FieldPlayer player)
     {
-        return player.Team.GetHomeGoal().Facing();
+        if (Random.Range(0.0f, 1.0f) > 0.25f)
+        {
+            return (player.Team.GetOpponentTeam().GetHomeGoal().GetPosition() - player.GetPosition());
+        }
+        else
+        {
+            return player.Team.GetHomeGoal().Facing();
+        }
     }
 
     private Vector2 HumanDribbleDirection(FieldPlayer player)

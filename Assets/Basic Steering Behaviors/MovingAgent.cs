@@ -266,6 +266,8 @@ public class MovingAgent : MonoBehaviour
 
     public bool TargetReached()
     {
+        // Debug.Log(gameObject.name + ": " + (_target - GetAgentPosition()).magnitude);
+        
         return ((_target - GetAgentPosition()).magnitude < MinTargetDistance);
     }
 

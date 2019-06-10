@@ -55,7 +55,14 @@ public class Player : MonoBehaviour
 
     public bool IsAtTarget()
     {
-        return MovingAgent.TargetReached();
+        if (MovingAgent.TargetReached())
+        {
+            MovingAgent.Stop();
+            TrackPuck();
+            return true;
+        }
+
+        return false;
     }
 
     public bool CanKickThePuck()
@@ -86,7 +93,7 @@ public class Player : MonoBehaviour
         return this == Team.GetControllingPlayer();
     }
 
-    public bool IsClosestToBall()
+    public bool IsClosestToPuck()
     {
         return this == Team.GetClosestToBallPlayer();
     }

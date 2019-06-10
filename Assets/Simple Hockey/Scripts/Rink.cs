@@ -94,7 +94,7 @@ public class Rink : MonoBehaviour
         }
     }
 
-    public bool GoalKeeperHasBall()
+    public bool GoalKeeperHasPuck()
     {
         return false;
     }

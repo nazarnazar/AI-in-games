@@ -29,7 +29,7 @@ public class ChasePuck : IFieldPlayerState
             return;
         }
 
-        if (player.IsClosestToBall())
+        if (player.IsClosestToPuck())
         {
             return;
         }

@@ -91,7 +91,10 @@ public class GlobalPlayerState : IFieldPlayerState
                 }
 
                 player.GetPuck().Trap();
-                controllingPlayer.GetPuck().Kick(player.GetPosition() - player.GetPuck().GetPosition(), MatchData.Instance().MaxPassForce, controllingPlayer);
+                if (!controllingPlayer.GetPuck().Kick(player.GetPosition() - player.GetPuck().GetPosition(), MatchData.Instance().MaxPassForce, controllingPlayer))
+                {
+                    return true;
+                }
                 player.SendMessage(MessageType.RecieveBall);
                 controllingPlayer.SendMessage(MessageType.SupportAttacker);
                 return true;

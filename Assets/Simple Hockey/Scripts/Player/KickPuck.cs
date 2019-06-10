@@ -28,7 +28,7 @@ public class KickPuck : IFieldPlayerState
     {
         Vector2 toBall = player.GetPuck().GetPosition() - player.GetPosition();
         float dot = Vector2.Dot(player.Heading().normalized, toBall.normalized);
-        if (player.Team.GetReceivingPlayer() != null || dot < 0.0f)
+        if (player.Team.GetReceivingPlayer() != null) // || dot < 0.0f)
         {
             player.ChangeState(ChasePuck.Instance());
             return;
@@ -97,7 +97,10 @@ public class KickPuck : IFieldPlayerState
             Vector2 kickDirection = ballTarget - player.GetPuck().GetPosition();
 
             player.GetPuck().Trap();
-            player.GetPuck().Kick(kickDirection, kickPower, player);
+            if (!player.GetPuck().Kick(kickDirection, kickPower, player))
+            {
+                return false;
+            }
             receiver.SendMessage(MessageType.RecieveBall);
             player.SendMessage(MessageType.SupportAttacker);
             return true;
@@ -119,7 +122,10 @@ public class KickPuck : IFieldPlayerState
             Vector2 kickDirection = ballTarget - player.GetPuck().GetPosition();
 
             player.GetPuck().Trap();
-            player.GetPuck().Kick(kickDirection, kickPower, player);
+            if (!player.GetPuck().Kick(kickDirection, kickPower, player))
+            {
+                return false;
+            }
             receiver.SendMessage(MessageType.RecieveBall);
             player.SendMessage(MessageType.SupportAttacker);
 

@@ -31,7 +31,7 @@ public class GoAttack : IFieldPlayerState
 
         if (player.Team.GetRink().IsGameOn())
         {
-            if (player.IsClosestToBall() && player.Team.GetReceivingPlayer() == null && !player.Team.GetRink().GoalKeeperHasBall())
+            if (player.IsClosestToPuck() && player.Team.GetReceivingPlayer() == null && !player.Team.GetRink().GoalKeeperHasPuck())
             {
                 player.ChangeState(ChasePuck.Instance());
             }
